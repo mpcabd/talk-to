@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  talk_to:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: always
+    env_file:
+      - ./prod.env
+    volumes:
+      - ./access.log:/usr/src/app/access.log
+      - ./error.log:/usr/src/app/error.log
+    expose:
+      - 80

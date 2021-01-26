@@ -1,0 +1,4 @@
+aiohttp==3.7.3
+arrow==0.14.7
+ics==0.7
+Quart==0.14.1

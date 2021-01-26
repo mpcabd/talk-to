@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+
+    <title>Talk to {{ name }}</title>
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='app.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+  </head>
+  <body class="p-5">
+    <div id="app" class="container-md" data-email="{{ email }}">
+      <h1>Let's talk!</h1>
+      <p><em>
+        You're here because you wanted to schedule some time to talk to me.
+        Check the calendar below, and click on dates to check my availability on those days.
+      </em></p>
+      <div class="d-flex flex-column flex-md-row flex-lg-row flex-xl-row flex-xxl-row flex-sm-column justify-content-between">
+        <calendar
+          v-show="loadedFirstTime"
+          class="order-2 order-md-1 order-lg-1 order-xl-1 order-xxl-1 order-sm-2"
+          :class="{loaded: loaded}"
+          :month-availability="monthAvailability"
+          @month-changed="handleMonthChanged"
+          @selected-day-changed="handleSelectedDayChanged">
+        </calendar>
+        <div v-show="loadedFirstTime" class="m-3 order-1 order-md-2 order-lg-2 order-xl-2 order-xxl-2 order-sm-1">
+          <img class="w-75 rounded-circle" src="{{ url_for('static', filename='me.jpg') }}" alt="my profile picture">
+        </div>
+      </div>
+      <div style="display: none;" v-show="error" class="alert alert-danger" role="alert">
+        Could not load the data due to an error, check again later or contact me please.
+      </div>
+      <div v-show="!loaded" class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div v-show="loaded">
+        Here's my availability <span v-if="selectedDay">on ${ hugeDate(selectedDay) }</span> <span v-else>in the upcoming days</span>
+        <small style="display: none;" v-show="loaded"><em><abbr :title="lastUpdate">
+          (last updated ${lastUpdateAgo})
+        </abbr></em></small>
+        <ul v-if="selectedDay !== undefined && monthAvailability !== undefined">
+          <li v-for="span in monthAvailability[selectedDay.day]">
+            between ${ localizedSpan(span[0]) } and ${ localizedSpan(span[1]) }
+          </li>
+        </ul>
+        <div class="mb-4"><a class="btn btn-primary" target="_blank" :href="googleCalendarLink" role="button">
+          <i class="bi bi-calendar-event"></i> Book a meeting <span v-if="selectedDay">on ${ hugeDate(selectedDay) }</span>
+        </a></div>
+      </div>
+      <div v-show="loadedFirstTime" class="shadow-sm p-3 mb-4 bg-white rounded border-start border-info border-3">
+        I'm situated in the <strong>${timezone}</strong> timezone which is ${timezoneUTCOffset}.<br>
+        The times above are shown in your timezone <strong>${localTimezone}</strong> which is ${localTimezoneUTCOffset}
+      </div>
+    </div>
+    <ul class="nav">
+      {% for link in links %}
+        <li class="nav-item">
+          <a class="nav-link link-secondary" target="_blank" href="{{ link['href'] }}"><i class="bi bi-{{ link['icon'] }}"></i> {{ link['text'] }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+    {# Import Libs #}
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5/dist/vue.global.prod.js" integrity="sha256-2KnOUvjJn/oCJPCIK1g0/2k6ruZzFZ9u4KkbWJDiwl8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js" integrity="sha256-JLmknTdUZeZZ267LP9qB+/DT7tvxOOKctSKeUC2KT6E=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@1.25.0/build/global/luxon.min.js" integrity="sha256-OVk2fwTRcXYlVFxr/ECXsakqelJbOg5WCj1dXSIb+nU=" crossorigin="anonymous"></script>
+    {# Import App #}
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    {# Mount App #}
+  </body>
+</html>

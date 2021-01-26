@@ -1,0 +1,5 @@
+debug = true
+use_reloader = true
+startup_timeout = 300
+loglevel = 'DEBUG'
+server_names = 'localhost:8082'

@@ -1,0 +1,43 @@
+{
+  "calendars": [
+    "https://some.path.com/to/calendar1.ics",
+    "https://some.path.com/to/calendar2.ics",
+    "https://some.path.com/to/calendar3.ics",
+    "https://some.path.com/to/calendar4.ics",
+  ],
+  "name": "John Smith",
+  "email": "john@example.com",
+  "links": [
+    {
+      "href": "https://github.com/user/",
+      "icon": "github",
+      "text": "user"
+    },
+    {
+      "href": "https://twitter.com/user",
+      "icon": "twitter",
+      "text": "@user"
+    },
+    {
+      "href": "https://www.linkedin.com/in/user/",
+      "icon": "linkedin",
+      "text": "in/user"
+    },
+    {
+      "href": "mailto:john@example.com",
+      "icon": "envelope",
+      "text": "john@example.com"
+    },
+  ],
+  "refresh_delay": 600,
+  "timezone": "UTC",
+  "weekday_availability": [
+    [["09:00", "13:00"], ["14:00", "18:00"]],
+    [["09:00", "13:00"], ["14:00", "18:00"]],
+    [["09:00", "13:00"], ["14:00", "18:00"]],
+    [["09:00", "13:00"], ["14:00", "18:00"]],
+    [["09:00", "12:00"], ["14:30", "15:00"], ["17:00", "18:00"]],
+    [],
+    []
+  ]
+}

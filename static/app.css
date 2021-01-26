@@ -1,0 +1,57 @@
+.calendar {
+  margin-bottom: 1.5rem !important;
+}
+.calendar > table > thead .calendar-navigation.enabled {
+  cursor: pointer;
+  transition: 200ms;
+}
+.calendar > table > thead .calendar-navigation.enabled:hover {
+  background-color: black;
+  color: white;
+}
+.calendar > table > thead .calendar-navigation.disabled {
+  color: lightgray;
+}
+.calendar > table > tbody > tr.week td {
+  width: 3em;
+  cursor: pointer;
+}
+.calendar > table > tbody { transition: 200ms; opacity: 0.1; }
+.calendar.loaded > table > tbody { opacity: 1.0; }
+.calendar > table > tbody > tr.week td.past,
+.calendar > table > tbody > tr.week td.empty {
+  cursor: default;
+  color: lightgray;
+}
+.calendar.loaded > table > tbody > tr.week td.unavailable {
+  cursor: default;
+}
+.calendar.loaded > table > tbody > tr.week td.unavailable:hover span {
+  color: #6c0f0f;
+}
+.calendar.loaded > table > tbody > tr.week td.unavailable span {
+  color: #6c0f0f;
+  background-image: radial-gradient(#ff8686, white);
+}
+.calendar > table > tbody > tr.week td.today span,
+.calendar > table > tbody > tr.week td.day span {
+  transition: 100ms;
+  border-radius: 50%;
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  display: inline-block;
+}
+.calendar > table > tbody > tr.week td.today:hover span,
+.calendar > table > tbody > tr.week td.day:hover span {
+  background-color: black;
+  color: white;
+}
+.calendar > table > tbody > tr.week td.selected span {
+  border: 1px solid black;
+  box-sizing: border-box;
+  font-weight: bold;
+}
+.calendar > table > tbody > tr.week td.today {
+  color: #001cff;
+}

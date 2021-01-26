@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  talk_to:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    image: talk_to
+    restart: always
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - ./dev.env
+    ports:
+      - 8082:5050
+    expose:
+      - 5050
