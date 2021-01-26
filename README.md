@@ -12,7 +12,7 @@ You can make a copy of this application, make your own configuration, build an i
 
 Check [`config.json`](config.json) to see the configuration file. The `weekday_availability` key is an array that sets your default daily availability, each item in `weekday_availability` is the availability for a day, first day is Monday, each day is also an array of time-ranges, each range is an array of two timestamps `HH:MM`. For example:
 
-```json
+```javascript
 "weekday_availability": [
   // Monday 9am to 6pm with a lunch break between 1pm and 2pm
   [["09:00", "13:00"], ["14:00", "18:00"]],
