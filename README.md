@@ -2,7 +2,7 @@
 
 I have been having lots of calls, meetings, and appointments lately, and scheduling those has become annoying, with lots of messages exchanged between me and other people to agree on a good time to meet. Especially that I have to check my personal calendar, our family's calendar, and my work calendar, which usually are not accessible from one device. I tried [Calendly](calendly.com), it was nice, but in order for me to use it well with it figuring out my availability and cross it with multiple calendars, then I'd have to pay for it's ultimate subscription, and still maybe I'd have to do a lot of manual work to set it up. So I wrote this simple web application.
 
-This web application loads multiple calendars, the calendars must be exposed as `.ics` URLs on the web, this works pretty well with Google Calendars as it allows you to get an `.ics` URL for your calendar. It refreshes those calendars periodically. You can set up your default weekly availability hours, and the application will show cross those with the events on your calendar to determine when you should be available.
+This web application loads multiple calendars, the calendars must be exposed as `.ics` URLs on the web, this works pretty well with Google Calendars as it allows you to get an `.ics` URL for your calendar. It refreshes those calendars periodically. You can set up your default weekly availability hours, and the application will cross those with the events on your calendar to determine when you should be available.
 
 You can view it live here on my own page: https://talk-to.mpcabd.xyz/
 
