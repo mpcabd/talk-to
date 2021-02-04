@@ -29,6 +29,16 @@ def _arrow_to_hhmm(arrow_obj):
     return '%02d:%02d' % (arrow_obj.hour, arrow_obj.minute)
 
 
+def _local_hhmm_to_utc_arrow(hhmm, timezone, date):
+    return date.replace(
+        hour=int(hhmm.split(':')[0]),
+        minute=int(hhmm.split(':')[1]),
+        second=0,
+        microsecond=0,
+        tzinfo=timezone,
+    ).to('utc')
+
+
 class TalkTo:
     def __init__(self):
         self.state_lock = asyncio.Lock()
@@ -117,8 +127,6 @@ class TalkTo:
             current_event = events_iterator.last_value
         while current_event and current_event.end < date:
             current_event = next(events_iterator, None)
-        if not current_event or current_event.begin > date.ceil('day'):
-            return date_availability
 
         result = []
         while date_availability:
@@ -128,20 +136,16 @@ class TalkTo:
                 date_availability.pop(0)
                 continue
 
-            av_start_arrow = date.replace(
-                hour=int(av_start.split(':')[0]),
-                minute=int(av_start.split(':')[1]),
-                second=0,
-                microsecond=0,
-                tzinfo=self.timezone,
-            ).to('utc')
-            av_end_arrow = date.replace(
-                hour=int(av_end.split(':')[0]),
-                minute=int(av_end.split(':')[1]),
-                second=0,
-                microsecond=0,
-                tzinfo=self.timezone,
-            ).to('utc')
+            av_start_arrow = _local_hhmm_to_utc_arrow(
+                av_start,
+                self.timezone,
+                date
+            )
+            av_end_arrow = _local_hhmm_to_utc_arrow(
+                av_end,
+                self.timezone,
+                date
+            )
 
             self.logger.debug(
                 f'Current span {av_start_arrow.strftime("%H:%M")}'
