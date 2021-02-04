@@ -20,6 +20,7 @@
         selectedDay: undefined,
         monthAvailabilityData: undefined,
         selectedSlot: undefined,
+        h24: true,
       };
     },
     mounted: function() {
@@ -69,42 +70,33 @@
         if (this.bookingSpan === null) {
           return 0;
         }
-        let hhmmStart = this.bookingSpan[0].split(':').map((x) => { return parseInt(x) });
-        let hhmmEnd = this.bookingSpan[1].split(':').map((x) => { return parseInt(x) });
-        return (this.selectedDay.set({
-          hour: hhmmEnd[0],
-          minute: hhmmEnd[1]
-        }) - this.selectedDay.set({
-          hour: hhmmStart[0],
-          minute: hhmmStart[1]
-        })) / 60_000.0;
+        let start = DateTime.fromFormat(this.bookingSpan[0], "HH:mm", { zone: 'UTC' });
+        let end = DateTime.fromFormat(this.bookingSpan[1], "HH:mm", { zone: 'UTC' });
+        return (end - start) / 60_000.0;
       },
       bookableSlots: function() {
         if (this.bookingSpan === null) {
           return [];
         }
 
-        let hhmmStart = this.bookingSpan[0].split(':').map((x) => { return parseInt(x) });
-        let hhmmEnd = this.bookingSpan[1].split(':').map((x) => { return parseInt(x) });
-        let end = this.selectedDay.set({
-          hour: hhmmEnd[0],
-          minute: hhmmEnd[1]
-        }).minus({ minutes: this.bookingSpanMeetingLength });
-
         let slots = [];
+        let start = DateTime.fromFormat(this.bookingSpan[0], "HH:mm", { zone: 'UTC' });
+        let end = DateTime.fromFormat(this.bookingSpan[1], "HH:mm", { zone: 'UTC' });
         let dt = this.selectedDay.set({
-          hour: hhmmStart[0],
-          minute: hhmmStart[1],
+          hour: start.hour,
+          minute: start.minute,
           seconds: 0,
+          millisecond: 0,
         });
-        while (dt <= end) {
+        let lastPossibleStart = end.minus({ minutes: this.bookingSpanMeetingLength });
+        while (dt <= lastPossibleStart) {
           let dtEnd = dt.plus({ minutes: this.bookingSpanMeetingLength });
           slots.push({
             id: dt.toFormat("yyyyMMdd'T'HHmmss'Z/'") + dtEnd.toFormat("yyyyMMdd'T'HHmmss'Z'"),
             parts: [dt, dtEnd],
             span: [
-              dt.toFormat('t'),
-              dtEnd.toFormat('t'),
+              dt.toFormat('T'),
+              dtEnd.toFormat('T'),
             ]
           });
           dt = dt.plus({ minutes: 15 });
@@ -137,10 +129,10 @@
         return date.toLocaleString(DateTime.DATE_HUGE);
       },
       localizedISOSpan(span) {
-        return DateTime.fromISO(span, { zone: 'UTC' }).setZone('local').toFormat('t')
+        return DateTime.fromISO(span, { zone: 'UTC' }).setZone('local').toFormat(this.h24 ? 'HH:mm' : 'hh:mm a')
       },
       localizedSpan(span) {
-        return DateTime.fromFormat(span, 't', { zone: 'UTC' }).setZone('local').toFormat('t')
+        return DateTime.fromFormat(span, 'T', { zone: 'UTC' }).setZone('local').toFormat(this.h24 ? 'HH:mm' : 'hh:mm a')
       },
       handleMonthChanged(firstDay) {
         this.currentFirstDay = firstDay;

@@ -44,6 +44,11 @@
             Here's my availability on ${ hugeDate(selectedDay) }<br><br>
             The form below also can help you book a time slot easily if you're using Google Calendar.
           </p>
+          <div class="form-check form-switch p-0">
+            <label class="form-check-label me-2" for="check1224">12H</label>
+            <input class="form-check-input me-2" style="float: none; margin-left: 0;" v-model="h24" type="checkbox" id="check1224" checked>
+            <label class="form-check-label me-2" for="check1224">24H</label>
+          </div>
           <template v-if="selectedDay !== undefined && monthAvailability !== undefined">
             <div class="mb-3 d-block p-0 col-lg-6 col-md-6 col-sm-12 form-control-sm btn-group btn-group-sm btn-group-vertical" role="group">
               <template v-for="(span, index) in monthAvailability[selectedDay.day]">
