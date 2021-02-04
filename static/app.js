@@ -7,6 +7,8 @@
         loaded: false,
         loadedFirstTime: false,
         error: false,
+        bookingSpan: null,
+        bookingSpanMeetingLength: 15,
         email: '',
         lastUpdateAgo: '',
         lastUpdate: '',
@@ -17,6 +19,7 @@
         currentFirstDay: undefined,
         selectedDay: undefined,
         monthAvailabilityData: undefined,
+        selectedSlot: undefined,
       };
     },
     mounted: function() {
@@ -34,22 +37,88 @@
         return obj;
       },
       googleCalendarLink: function() {
-        if (this.selectedDay === undefined) {
+        if (this.selectedSlot === undefined) {
           return '';
         }
-        const dt = this.selectedDay.toFormat('yyyyMMdd') + 'Z';
         return (
           'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Let%27s%20Talk&dates=' +
-          `${dt}/${dt}` +
+          encodeURI(this.selectedSlot.id) +
           '&add=' + encodeURI(this.email)
         );
       },
+      iCalLink: function() {
+        if (this.selectedSlot === undefined) {
+          return '';
+        }
+        return encodeURI(
+          'data:text/calendar;charset=utf8,' +
+          [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'BEGIN:VEVENT',
+            'DTSTART:'      + this.selectedSlot.parts[0].toFormat("yyyyMMdd'T'HHmmss'Z'"),
+            'DTEND:'        + this.selectedSlot.parts[1].toFormat("yyyyMMdd'T'HHmmss'Z'"),
+            'SUMMARY:'      + "Let's Talk",
+            'ATTENDEE:'     + this.email,
+            'END:VEVENT',
+            'END:VCALENDAR'
+          ].join('\n')
+        );
+      },
+      bookingSpanLength: function() {
+        if (this.bookingSpan === null) {
+          return 0;
+        }
+        let hhmmStart = this.bookingSpan[0].split(':').map((x) => { return parseInt(x) });
+        let hhmmEnd = this.bookingSpan[1].split(':').map((x) => { return parseInt(x) });
+        return (this.selectedDay.set({
+          hour: hhmmEnd[0],
+          minute: hhmmEnd[1]
+        }) - this.selectedDay.set({
+          hour: hhmmStart[0],
+          minute: hhmmStart[1]
+        })) / 60_000.0;
+      },
+      bookableSlots: function() {
+        if (this.bookingSpan === null) {
+          return [];
+        }
+
+        let hhmmStart = this.bookingSpan[0].split(':').map((x) => { return parseInt(x) });
+        let hhmmEnd = this.bookingSpan[1].split(':').map((x) => { return parseInt(x) });
+        let end = this.selectedDay.set({
+          hour: hhmmEnd[0],
+          minute: hhmmEnd[1]
+        }).minus({ minutes: this.bookingSpanMeetingLength });
+
+        let slots = [];
+        let dt = this.selectedDay.set({
+          hour: hhmmStart[0],
+          minute: hhmmStart[1],
+          seconds: 0,
+        });
+        while (dt <= end) {
+          let dtEnd = dt.plus({ minutes: this.bookingSpanMeetingLength });
+          slots.push({
+            id: dt.toFormat("yyyyMMdd'T'HHmmss'Z/'") + dtEnd.toFormat("yyyyMMdd'T'HHmmss'Z'"),
+            parts: [dt, dtEnd],
+            span: [
+              dt.toFormat('t'),
+              dtEnd.toFormat('t'),
+            ]
+          });
+          dt = dt.plus({ minutes: 15 });
+        }
+        return slots;
+      }
     },
     methods: {
       loadMonthAvailability() {
         const startDate = this.currentFirstDay;
         const endDate = this.currentFirstDay.endOf('month');
         this.loaded = false;
+        this.bookingSpan = null;
+        this.selectedSlot = undefined;
         axios.get('/availability?start_date=' + startDate.toISODate() + '&end_date=' + endDate.toISODate()).then(response => {
           this.monthAvailabilityData = response.data.data;
           this.availabilityData = response.data;
@@ -77,6 +146,12 @@
       },
       handleSelectedDayChanged(selectedDay) {
         this.selectedDay = selectedDay;
+        this.bookingSpan = null;
+        this.selectedSlot = undefined;
+      },
+      bookInSpan(span) {
+        this.bookingSpan = span;
+        this.bookingSpanRangeStart = 0;
       },
     },
     delimiters: ['${', '}']  // because I use Jinja for my templates

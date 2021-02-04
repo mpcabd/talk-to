@@ -39,22 +39,75 @@
         <span class="visually-hidden">Loading...</span>
       </div>
       <div v-show="loaded">
-        Here's my availability <span v-if="selectedDay">on ${ hugeDate(selectedDay) }</span> <span v-else>in the upcoming days</span>
-        <small style="display: none;" v-show="loaded"><em><abbr :title="lastUpdate">
-          (last updated ${lastUpdateAgo})
-        </abbr></em></small>
-        <ul v-if="selectedDay !== undefined && monthAvailability !== undefined">
-          <li v-for="span in monthAvailability[selectedDay.day]">
-            between ${ localizedSpan(span[0]) } and ${ localizedSpan(span[1]) }
-          </li>
-        </ul>
-        <div class="mb-4"><a class="btn btn-primary" target="_blank" :href="googleCalendarLink" role="button">
-          <i class="bi bi-calendar-event"></i> Book a meeting <span v-if="selectedDay">on ${ hugeDate(selectedDay) }</span>
-        </a></div>
+        <div class="col-lg-6 col-md-6 col-sm-12 mt-3 mb-3 border border-2 rounded-1 bg-white shadow-sm p-3">
+          <p v-if="selectedDay">
+            Here's my availability on ${ hugeDate(selectedDay) }<br><br>
+            The form below also can help you book a time slot easily if you're using Google Calendar.
+          </p>
+          <template v-if="selectedDay !== undefined && monthAvailability !== undefined">
+            <div class="mb-3 d-block p-0 col-lg-6 col-md-6 col-sm-12 form-control-sm btn-group btn-group-sm btn-group-vertical" role="group">
+              <template v-for="(span, index) in monthAvailability[selectedDay.day]">
+                <input type="radio" class="btn-xs btn-check" v-model="bookingSpan" :value="span" name="btnSpan" :id="'btnSpan' + index" autocomplete="off">
+                <label class="btn btn-outline-primary" :for="'btnSpan' + index">between ${ localizedSpan(span[0]) } and ${ localizedSpan(span[1]) }</label>
+              </template>
+            </div>
+          </template>
+          <template v-if="bookingSpan">
+            <div class="mb-3">
+              <label for="btnMeetingLength" class="form-label">Duration</label>
+              <div class="d-block p-0 col-lg-6 col-md-6 col-sm-12 form-control-sm btn-group btn-group-sm btn-group-vertical" role="group">
+                <template v-if="bookingSpanLength >= 15">
+                  <input type="radio" class="btn-xs btn-check" v-model="bookingSpanMeetingLength" value="15" name="btnMeetingLength" id="btnMeetingLength15" autocomplete="off" checked>
+                  <label class="btn btn-outline-primary" for="btnMeetingLength15">15 minutes</label>
+                </template>
+
+                <template v-if="bookingSpanLength >= 30">
+                  <input type="radio" class="btn-xs btn-check" v-model="bookingSpanMeetingLength" value="30" name="btnMeetingLength" id="btnMeetingLength30" autocomplete="off">
+                  <label class="btn btn-outline-primary" for="btnMeetingLength30">30 minutes</label>
+                </template>
+
+                <template v-if="bookingSpanLength >= 45">
+                  <input type="radio" class="btn-xs btn-check" v-model="bookingSpanMeetingLength" value="45" name="btnMeetingLength" id="btnMeetingLength45" autocomplete="off">
+                  <label class="btn btn-outline-primary" for="btnMeetingLength45">45 minutes</label>
+                </template>
+
+                <template v-if="bookingSpanLength >= 60">
+                  <input type="radio" class="btn-xs btn-check" v-model="bookingSpanMeetingLength" value="60" name="btnMeetingLength" id="btnMeetingLength60" autocomplete="off">
+                  <label class="btn btn-outline-primary" for="btnMeetingLength60">60 minutes</label>
+                </template>
+              </div>
+            </div>
+          </template>
+          <template v-if="bookableSlots.length > 0">
+            <div class="mb-3">
+              <label for="selectWhen" class="form-label">When</label>
+              <select v-model="selectedSlot" id="selectWhen" class="form-select form-control-sm">
+                <option
+                  v-for="slot in bookableSlots"
+                  :value="slot"
+                  :key="slot.id">
+                  ${ localizedSpan(slot.span[0]) } - ${ localizedSpan(slot.span[1]) }
+                </option>
+              </select>
+            </div>
+            <div class="btn-group" role="group">
+              <a class="btn btn-outline-primary" v-if="selectedSlot" target="_blank" :href="googleCalendarLink" role="button">
+                <i class="bi bi-google"></i> Google Calendar
+              </a>
+
+              <a class="btn btn-outline-primary" v-if="selectedSlot" target="_blank" :href="iCalLink" role="button">
+                <i class="bi bi-calendar-event"></i> Download iCal
+              </a>
+            </div>
+          </template>
+        </div>
       </div>
       <div v-show="loadedFirstTime" class="shadow-sm p-3 mb-4 bg-white rounded border-start border-info border-3">
         I'm situated in the <strong>${timezone}</strong> timezone which is ${timezoneUTCOffset}.<br>
-        The times above are shown in your timezone <strong>${localTimezone}</strong> which is ${localTimezoneUTCOffset}
+        The times above are shown in your timezone <strong>${localTimezone}</strong> which is ${localTimezoneUTCOffset}<br>
+        <small v-if="loaded"><em><abbr :title="lastUpdate">
+          (last updated ${lastUpdateAgo})
+        </abbr></em></small>
       </div>
     </div>
     <ul class="nav">
