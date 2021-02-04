@@ -136,8 +136,11 @@
       hugeDate(date) {
         return date.toLocaleString(DateTime.DATE_HUGE);
       },
-      localizedSpan(span) {
+      localizedISOSpan(span) {
         return DateTime.fromISO(span, { zone: 'UTC' }).setZone('local').toFormat('t')
+      },
+      localizedSpan(span) {
+        return DateTime.fromFormat(span, 't', { zone: 'UTC' }).setZone('local').toFormat('t')
       },
       handleMonthChanged(firstDay) {
         this.currentFirstDay = firstDay;

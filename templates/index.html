@@ -48,7 +48,7 @@
             <div class="mb-3 d-block p-0 col-lg-6 col-md-6 col-sm-12 form-control-sm btn-group btn-group-sm btn-group-vertical" role="group">
               <template v-for="(span, index) in monthAvailability[selectedDay.day]">
                 <input type="radio" class="btn-xs btn-check" v-model="bookingSpan" :value="span" name="btnSpan" :id="'btnSpan' + index" autocomplete="off">
-                <label class="btn btn-outline-primary" :for="'btnSpan' + index">between ${ localizedSpan(span[0]) } and ${ localizedSpan(span[1]) }</label>
+                <label class="btn btn-outline-primary" :for="'btnSpan' + index">between ${ localizedISOSpan(span[0]) } and ${ localizedISOSpan(span[1]) }</label>
               </template>
             </div>
           </template>
