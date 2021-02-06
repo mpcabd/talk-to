@@ -39,6 +39,14 @@ async def index():
     )
 
 
+@app.route("/robots.txt")
+async def robots():
+    return (
+        "User-agent: *\nDisallow: /\n",
+        [('Content-Type', 'text/plain; charset=UTF-8')]
+    )
+
+
 @app.route("/reload", methods=["POST"])
 async def reload():
     talk_to.load_config()
