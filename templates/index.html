@@ -105,6 +105,14 @@
               </a>
             </div>
           </template>
+          <template v-if="loaded &&
+                          selectedDay !== undefined &&
+                          monthAvailability !== undefined &&
+                          monthAvailability[selectedDay.day].length == 0">
+            <div class="alert alert-danger" role="alert">
+              No available slots for ${ hugeDate(selectedDay) }
+            </div>
+          </template>
         </div>
       </div>
       <div v-show="loadedFirstTime" class="shadow-sm p-3 mb-4 bg-white rounded border-start border-info border-3">

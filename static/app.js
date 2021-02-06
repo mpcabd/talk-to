@@ -1,5 +1,5 @@
 (function() {
-  let DateTime = luxon.DateTime;
+  const DateTime = luxon.DateTime;
   const app = Vue.createApp({
     data() {
       return {
@@ -70,8 +70,8 @@
         if (this.bookingSpan === null) {
           return 0;
         }
-        let start = DateTime.fromFormat(this.bookingSpan[0], "HH:mm", { zone: 'UTC' });
-        let end = DateTime.fromFormat(this.bookingSpan[1], "HH:mm", { zone: 'UTC' });
+        const start = DateTime.fromFormat(this.bookingSpan[0], "HH:mm", { zone: 'UTC' });
+        const end = DateTime.fromFormat(this.bookingSpan[1], "HH:mm", { zone: 'UTC' });
         return (end - start) / 60_000.0;
       },
       bookableSlots: function() {
@@ -79,18 +79,26 @@
           return [];
         }
 
-        let slots = [];
-        let start = DateTime.fromFormat(this.bookingSpan[0], "HH:mm", { zone: 'UTC' });
-        let end = DateTime.fromFormat(this.bookingSpan[1], "HH:mm", { zone: 'UTC' });
-        let dt = this.selectedDay.set({
-          hour: start.hour,
-          minute: start.minute,
-          seconds: 0,
+        const slots = [];
+        const startHHMM = DateTime.fromFormat(this.bookingSpan[0], "HH:mm", { zone: 'UTC' });
+        const endHHMM = DateTime.fromFormat(this.bookingSpan[1], "HH:mm", { zone: 'UTC' });
+
+        const start = this.selectedDay.set({
+          hour: startHHMM.hour,
+          minute: startHHMM.minute,
+          second: 0,
           millisecond: 0,
         });
-        let lastPossibleStart = end.minus({ minutes: this.bookingSpanMeetingLength });
+        const end = this.selectedDay.set({
+          hour: endHHMM.hour,
+          minute: endHHMM.minute,
+          second: 0,
+          millisecond: 0,
+        });
+        let dt = start;
+        const lastPossibleStart = end.minus({ minute: this.bookingSpanMeetingLength });
         while (dt <= lastPossibleStart) {
-          let dtEnd = dt.plus({ minutes: this.bookingSpanMeetingLength });
+          const dtEnd = dt.plus({ minute: this.bookingSpanMeetingLength });
           slots.push({
             id: dt.toFormat("yyyyMMdd'T'HHmmss'Z/'") + dtEnd.toFormat("yyyyMMdd'T'HHmmss'Z'"),
             parts: [dt, dtEnd],
@@ -99,7 +107,7 @@
               dtEnd.toFormat('T'),
             ]
           });
-          dt = dt.plus({ minutes: 15 });
+          dt = dt.plus({ minute: 15 });
         }
         return slots;
       }
@@ -154,7 +162,7 @@
 
   app.component('calendar', {
     data() {
-      let today = DateTime.utc();
+      const today = DateTime.utc();
       return {
         month: today.month,
         firstDay: today.startOf('month'),
@@ -171,7 +179,7 @@
       getWeeks() {
         let dt = this.firstDay;
         const lastDay = this.firstDay.endOf('month');
-        let weeks = [];
+        const weeks = [];
         let week = [];
         for (let i = 0; i < dt.weekday - 1; i++) {
           week.push(undefined);
@@ -196,8 +204,8 @@
         if (!this.canGoBackward) {
           return;
         }
-        let previousMonthLastDay = this.firstDay.minus({days: 1});
-        let previousMonthFirstDay = previousMonthLastDay.startOf('month');
+        const previousMonthLastDay = this.firstDay.minus({days: 1});
+        const previousMonthFirstDay = previousMonthLastDay.startOf('month');
         if (previousMonthFirstDay > this.today) {
           this.canGoBackward = true;
           this.selectedDay = previousMonthFirstDay;
@@ -220,7 +228,7 @@
         if (!this.canGoForward) {
           return;
         }
-        let nextMonthFirstDay = this.firstDay.endOf('month').plus({days: 1});
+        const nextMonthFirstDay = this.firstDay.endOf('month').plus({days: 1});
         this.month = nextMonthFirstDay.month;
         this.firstDay = nextMonthFirstDay;
         this.selectedDay = nextMonthFirstDay;
@@ -240,7 +248,7 @@
         this.$emit('selectedDayChanged', this.selectedDay);
       },
       getDayClasses(day) {
-        let classes = [];
+        const classes = [];
         if (this.currentMonth && day == this.todayDay) {
           classes.push('today');
           classes.push('day');
