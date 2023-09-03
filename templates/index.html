@@ -8,9 +8,9 @@
     <title>Talk to {{ name }}</title>
 
     <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link href="https://unpkg.com/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='app.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
   </head>
   <body class="p-5">
     <div id="app" class="container-md" data-email="{{ email }}">
@@ -62,7 +62,7 @@
               <label for="btnMeetingLength" class="form-label">Duration</label>
               <div class="d-block p-0 col-lg-6 col-md-6 col-sm-12 form-control-sm btn-group btn-group-sm btn-group-vertical" role="group">
                 <template v-if="bookingSpanLength >= 15">
-                  <input type="radio" class="btn-xs btn-check" v-model="bookingSpanMeetingLength" value="15" name="btnMeetingLength" id="btnMeetingLength15" autocomplete="off" checked>
+                  <input type="radio" class="btn-xs btn-check" v-model="bookingSpanMeetingLength" value="15" name="btnMeetingLength" id="btnMeetingLength15" autocomplete="off">
                   <label class="btn btn-outline-primary" for="btnMeetingLength15">15 minutes</label>
                 </template>
 
@@ -131,10 +131,10 @@
       {% endfor %}
     </ul>
     {# Import Libs #}
-    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5/dist/vue.global.prod.js" integrity="sha256-2KnOUvjJn/oCJPCIK1g0/2k6ruZzFZ9u4KkbWJDiwl8=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js" integrity="sha256-JLmknTdUZeZZ267LP9qB+/DT7tvxOOKctSKeUC2KT6E=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@1.25.0/build/global/luxon.min.js" integrity="sha256-OVk2fwTRcXYlVFxr/ECXsakqelJbOg5WCj1dXSIb+nU=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3.0.5/dist/vue.global.prod.js" integrity="sha256-2KnOUvjJn/oCJPCIK1g0/2k6ruZzFZ9u4KkbWJDiwl8=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios@0.21.1/dist/axios.min.js" integrity="sha256-JLmknTdUZeZZ267LP9qB+/DT7tvxOOKctSKeUC2KT6E=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/luxon@1.25.0/build/global/luxon.min.js" integrity="sha256-OVk2fwTRcXYlVFxr/ECXsakqelJbOg5WCj1dXSIb+nU=" crossorigin="anonymous"></script>
     {# Import App #}
     <script src="{{ url_for('static', filename='app.js') }}"></script>
     {# Mount App #}
