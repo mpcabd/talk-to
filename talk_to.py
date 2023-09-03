@@ -84,12 +84,16 @@ class TalkTo:
 
     async def refresh_calendars(self):
         self.logger.info('will refresh the calendars')
-        async with aiohttp.ClientSession() as session:
-            tasks = [
-                asyncio.ensure_future(_get_calendar(session, url))
-                for url in self.urls
-            ]
-            new_calendars = await asyncio.gather(*tasks)
+        try:
+            async with aiohttp.ClientSession() as session:
+                tasks = [
+                    asyncio.ensure_future(_get_calendar(session, url))
+                    for url in self.urls
+                ]
+                new_calendars = await asyncio.gather(*tasks)
+        except Exception as e:
+            self.logger.error('Could not refresh calendars: %s', str(e))
+            return
         async with self.state_lock:
             self.calendars = new_calendars
             self.last_update = arrow.utcnow()
@@ -122,7 +126,7 @@ class TalkTo:
         if not date_availability:
             return []
         if not events_iterator.advanced:
-            current_event = next(events_iterator)
+            current_event = next(events_iterator, None)
         else:
             current_event = events_iterator.last_value
         while current_event and current_event.end < date:
@@ -152,12 +156,19 @@ class TalkTo:
                 f' - {av_end_arrow.strftime("%H:%M")}')
             self.logger.debug(f'Current event {repr(current_event)}')
 
+            if not current_event:
+                result.append((
+                    _arrow_to_hhmm(av_start_arrow),
+                    _arrow_to_hhmm(av_end_arrow),
+                ))
+                date_availability.pop(0)
+                continue
+
             # event begins after this availability span ends or with its end
             # -------AAAAAAAAAAAAA-------
             # --------------------EEEEE--
             # ----------------------EEE--
             if current_event.begin >= av_end_arrow:
-                self.logger.debug(f'>>1')
                 result.append((
                     _arrow_to_hhmm(av_start_arrow),
                     _arrow_to_hhmm(av_end_arrow),
@@ -170,7 +181,6 @@ class TalkTo:
             # --EEEEE--------------------
             # --EEE----------------------
             if current_event.end <= av_start_arrow:
-                self.logger.debug(f'>>2')
                 current_event = next(events_iterator, None)
                 continue
 
@@ -185,7 +195,6 @@ class TalkTo:
                 current_event.begin <= av_start_arrow and
                 current_event.end >= av_end_arrow
             ):
-                self.logger.debug(f'>>3')
                 date_availability.pop(0)
                 if current_event.end == av_end_arrow:
                     current_event = next(events_iterator, None)
@@ -200,7 +209,6 @@ class TalkTo:
                 current_event.begin <= av_start_arrow and
                 current_event.end < av_end_arrow
             ):
-                self.logger.debug(f'>>4')
                 # replace this availability span with one that starts after
                 # the event
                 date_availability[0] = (
@@ -219,7 +227,6 @@ class TalkTo:
                 current_event.begin > av_start_arrow and
                 current_event.end >= av_end_arrow
             ):
-                self.logger.debug(f'>>5')
                 result.append((
                     _arrow_to_hhmm(av_start_arrow),
                     _arrow_to_hhmm(current_event.begin)
@@ -236,7 +243,6 @@ class TalkTo:
                 current_event.begin > av_start_arrow and
                 current_event.end < av_end_arrow
             ):
-                self.logger.debug(f'>>6')
                 # availability before the event
                 result.append((
                     _arrow_to_hhmm(av_start_arrow),
