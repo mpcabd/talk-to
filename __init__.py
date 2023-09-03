@@ -4,7 +4,13 @@ import os
 import logging.config
 
 from talk_to import TalkTo
-from quart import Quart, render_template, jsonify, abort, request
+from quart import (
+    abort,
+    jsonify,
+    Quart,
+    render_template,
+    request,
+)
 
 logging.config.dictConfig({
     'version': 1,
@@ -56,6 +62,26 @@ async def reload():
         cancel_task=True
     ))
     return jsonify(ok=True)
+
+
+@app.route("/reload-status")
+async def reload_status():
+    task = talk_to.refresh_task
+    if not task:
+        return jsonify(ok=False, error="Task not found")
+    if task.done():
+        try:
+            exception = task.exception()
+            return jsonify(ok=False, error="Task had an exception", exception_message=str(exception))
+        except asyncio.CancelledError:
+            return jsonify(ok=False, error="Task was cancelled")
+        try:
+            result = task.result()
+            return jsonify(ok=False, error="Task was done", result=str(result))
+        except asyncio.CancelledError:
+            return jsonify(ok=False, error="Task was cancelled")
+    else:
+        return jsonify(ok=True, message="Task is running")
 
 
 @app.route("/availability")
