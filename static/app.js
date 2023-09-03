@@ -1,5 +1,13 @@
 (function() {
   const DateTime = luxon.DateTime;
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  let bookingSpanMeetingLength = 15;
+  if (urlSearchParams.has('d')) {
+    const d = parseInt(urlSearchParams.get('d'));
+    if (!isNaN(d) && d >= 15 && d <= 60 && d % 15 == 0) {
+      bookingSpanMeetingLength = d;
+    }
+  }
   const app = Vue.createApp({
     data() {
       return {
@@ -8,7 +16,7 @@
         loadedFirstTime: false,
         error: false,
         bookingSpan: null,
-        bookingSpanMeetingLength: 15,
+        bookingSpanMeetingLength: bookingSpanMeetingLength,
         email: '',
         lastUpdateAgo: '',
         lastUpdate: '',
@@ -113,6 +121,32 @@
       }
     },
     methods: {
+      fetchAvailability() {
+        axios.get('/availability').then(response => {
+            this.availabilityData = response.data;
+            this.lastUpdateAgo = DateTime.fromISO(this.availabilityData['last-update']).toRelative();
+            this.lastUpdate = DateTime.fromISO(this.availabilityData['last-update']).toLocaleString(DateTime.DATETIME_SHORT);
+            this.timezone = this.availabilityData['timezone'];
+            this.timezoneUTCOffset = 'UTC' + DateTime.local().setZone(this.availabilityData['timezone']).toFormat('ZZ'),
+            this.loaded = true;
+            this.loadedFirstTime = true;
+        }).catch(function (error) {
+            this.error = true;
+            console.log(error);
+        });
+      },
+      loadMoreAvailability() {
+        axios.get('/availability?start_date=' + DateTime.fromISO(this.availabilityData['next-date']).toISODate()).then(response => {
+          this.availabilityData['next-date'] = response.data['next-date'];
+          this.availabilityData['end-date'] = response.data['end-date'];
+          this.availabilityData.data.push(...response.data.data);
+          this.lastUpdateAgo = DateTime.fromISO(response.data['last-update']).toRelative();
+          this.lastUpdate = DateTime.fromISO(response.data['last-update']).toLocaleString(DateTime.DATETIME_SHORT);
+        }).catch(function (error) {
+          this.error = true;
+          console.log(error);
+        });
+      },
       loadMonthAvailability() {
         const startDate = this.currentFirstDay;
         const endDate = this.currentFirstDay.endOf('month');
@@ -157,7 +191,7 @@
         this.bookingSpanRangeStart = 0;
       },
     },
-    delimiters: ['${', '}']  // because I use Jinja for my templates
+    delimiters: ['${', '}']
   });
 
   app.component('calendar', {
@@ -176,6 +210,26 @@
     },
     props: ['monthAvailability'],
     methods: {
+      getWeeksCount() {
+        const lastDay = this.today.endOf('month');
+        // A month spans 4 weeks exact if it's 28 days, then it's February, and it must end on a Sunday
+        if (this.month == 2 && lastDay.weekday == 7) {
+          return 4;
+        }
+
+        // A month spans 6 weeks if it's:
+        // 31 days start on Saturday or Sunday
+        // 30 days start on Sunday
+        if (lastDay.day == 31 && this.firstDay.weekday >= 6) {
+          return 6;
+        }
+        if (lastDay.day == 30 && this.firstDay.weekday == 7) {
+          return 6;
+        }
+
+        // Otherwise a month spans 5 weeks
+        return 5;
+      },
       getWeeks() {
         let dt = this.firstDay;
         const lastDay = this.firstDay.endOf('month');
@@ -306,4 +360,5 @@
     </div>`
   });
   const mountedApp = app.mount('#app');
+  window.mountedApp = mountedApp;
 })();
